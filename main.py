@@ -2,11 +2,6 @@ from training import *
 
 
 def main():
-    algo = train_testPrecision_Predict()
-    print(' ***********      SANS TRANSFORMATION      **************')
-    algo.train(transform=False)
-    print(algo.testPrecision(transform=False))
-    print('\n\n ***********   AVEC TRANSFORMATION      **************')
     algo.train(transform=True)
     print(algo.testPrecision(transform=True))
     print(algo.predict(model='LR'))
