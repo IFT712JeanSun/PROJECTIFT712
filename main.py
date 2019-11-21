@@ -2,6 +2,7 @@ from training import *
 
 
 def main():
+    algo = train_testPrecision_Predict()
     algo.train(transform=True)
     print(algo.testPrecision(transform=True))
     print(algo.predict(model='LR'))
