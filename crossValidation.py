@@ -1,8 +1,10 @@
 from sklearn.model_selection import GridSearchCV, KFold
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.tree import DecisionTreeClassifier
 
-from dataProcessing import *
+from dataProcessing import Data
 
 class CrossValidation(Data):
 
@@ -14,6 +16,10 @@ class CrossValidation(Data):
         self.activation = 'relu'
         self.C = None
         self.kernel = None
+        self.max_depth = None
+        self.max_leaf_nodes = None
+        self.min_samples_leaf = None
+        
 
     def crossValidationForSVM(self):
         '''
@@ -69,4 +75,46 @@ class CrossValidation(Data):
         solver = grid_result.best_params_['solver']
         print(solver)
         self.solver = solver
+        
+    def crossValidationDT(self):
+        
+        scoring = 'accuracy'
+        num_folds = 10
+        seed = 7
+        max_depth = range(5,50,5)
+        max_leaf_nodes = range(80,120,5)
+        min_samples_leaf = range(1,3)
+        param_grid = dict(max_depth = max_depth, max_leaf_nodes = max_leaf_nodes, min_samples_leaf = min_samples_leaf)
+        kfold = KFold(n_splits=num_folds, random_state=seed)
+        model = DecisionTreeClassifier(random_state=0)
+        grid = GridSearchCV(estimator=model, param_grid=param_grid, scoring=scoring, cv=kfold)
+        grid_result = grid.fit(self.X_train, self.y_train)
+        md = grid_result.best_params_['max_depth']
+        mln = grid_result.best_params_['max_leaf_nodes']
+        msl = grid_result.best_params_['min_samples_leaf']
+        self.max_depth = md
+        self.max_leaf_nodes = mln
+        self.min_samples_leaf = msl
+        
+    def crossValidationNN(self):
+        
+        scoring = 'accuracy'
+        num_folds = 10
+        seed = 7
+        activation = ['identity', 'logistic', 'tanh', 'relu']
+        solver =['lbfgs', 'sgd', 'adam']
+        learning_rate =['constant', 'invscaling', 'adaptive']
+        param_grid = dict(activation = activation, solver = solver, learning_rate = learning_rate)
+        kfold = KFold(n_splits=num_folds, random_state=seed)
+        model = DecisionTreeClassifier(random_state=0)
+        grid = GridSearchCV(estimator=model, param_grid=param_grid, scoring=scoring, cv=kfold)
+        grid_result = grid.fit(self.X_train, self.y_train)
+        solver = grid_result.best_params_['solver']
+        activation = grid_result.best_params_['activation']
+        learning_rate = grid_result.best_params_['learning_rate']
+        self.solver = solver
+        self.activation = activation
+        self.learning_rate = learning_rate
+        
+        
 
