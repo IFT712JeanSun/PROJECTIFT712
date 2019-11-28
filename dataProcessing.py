@@ -1,13 +1,16 @@
+import matplotlib
 from pandas import read_csv
 from pandas.plotting import scatter_matrix
 from matplotlib import pyplot
 import matplotlib.pyplot as plt
 import seaborn as sns
+import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn import decomposition
 from sklearn import preprocessing
+from sklearn.model_selection import StratifiedShuffleSplit
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -29,16 +32,29 @@ class Data(object):
         # the data_unknown are the data without target, the test data in
         data_unknown = read_csv(fileNameTest)
         X = data_train.iloc[:, 2:]
+        y = data_train['species'].astype('category')
+        y = y.cat.codes.as_matrix()
+        sss = StratifiedShuffleSplit(10, 0.2, random_state=15)
+        for train_index, test_index in sss.split(X, y):
+            self.X_train, self.X_test = X.iloc[train_index], X.iloc[test_index]
+            self.y_train, self.y_test = y[train_index], y[test_index]
         le = LabelEncoder().fit(data_train.iloc[:, 1])
-        y = le.transform(data_train.iloc[:, 1])
         self.className = list(le.classes_)
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
-        self.X_train = X_train
-        self.y_train = y_train
-        self.X_test = X_test
-        self.y_test = y_test
+        #min_max_scaler = preprocessing.MinMaxScaler()
+        #X = min_max_scaler.fit_transform(X)
+        #X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=1)
+        #X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        #self.X_train = X_train
+        #self.y_train = y_train
+        #self.X_test = X_test
+        #self.y_test = y_test sample_submission
+        submission_data = pd.read_csv('data/sample_submission.csv')
+        categories = submission_data.columns.values[1:]
+        n_class = list(categories)
+        categories_id = pd.Series(categories, dtype='category')
         self.X_unknown = data_unknown.iloc[:, 1:]
         self.id = data_unknown.iloc[:, 0]
+        #self.id = categories_id
 
     def getData(self, showData=False, n=5):
         """
@@ -151,3 +167,5 @@ class Data(object):
         plt.xlabel('coeff1')
         plt.ylabel('coeff2')
         plt.show()
+
+
