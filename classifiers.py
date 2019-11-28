@@ -9,8 +9,12 @@ from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier,
 class Algorithm(CrossValidation):
     """
     This class contains all the six class classifiers that we are going to use
+    and the ensemble.
     """
     def __init__(self):
+        '''
+        class object to be used
+        '''
         super().__init__()
         self.crossValidationForSVM()
         self.svm = SVC(C=self.C, kernel=self.kernel, degree=3, probability=True)
@@ -34,5 +38,9 @@ class Algorithm(CrossValidation):
         self.abc = AdaBoostClassifier()
 
     def classifier(self):
+        '''
+        function to create a liste of the classifiers
+        :return: the classifiers
+        '''
         clf = [self.svm, self.dtc, self.knn, self.lda, self.nn, self.lr, self.lrcv, self.gbc, self.rfc, self.abc]
         return clf
