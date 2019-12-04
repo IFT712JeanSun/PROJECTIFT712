@@ -19,6 +19,8 @@ def main():
     print(algo.predict(model='KNN'))
     print(algo.predict(model='NN'))
 
+    # Also we can add ensemble here
+
     toplot = Plotting()
     toplot.barPlot()
     toplot.scatterPlot()
