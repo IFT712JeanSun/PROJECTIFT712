@@ -1,11 +1,9 @@
-import matplotlib
 from pandas import read_csv
 from pandas.plotting import scatter_matrix
 from matplotlib import pyplot
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
-from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn import decomposition
@@ -29,6 +27,7 @@ class Data(object):
         """
         # The data_train will be separated in train and test data
         data_train = read_csv(fileNameTrain)
+        self.data_to_print = data_train
         # the data_unknown are the data without target, the test data in
         data_unknown = read_csv(fileNameTest)
         X = data_train.iloc[:, 2:]
@@ -50,11 +49,18 @@ class Data(object):
         #self.y_test = y_test sample_submission
         submission_data = pd.read_csv('data/sample_submission.csv')
         categories = submission_data.columns.values[1:]
-        n_class = list(categories)
-        categories_id = pd.Series(categories, dtype='category')
         self.X_unknown = data_unknown.iloc[:, 1:]
         self.id = data_unknown.iloc[:, 0]
-        #self.id = categories_id
+
+
+
+    def printSomeData(self):
+        printing = self.data_to_print[['id', 'species', 'margin20', 'shape20', 'texture20']]
+        print(printing)
+
+    def getShape(self):
+        print(self.data_to_print.shape)
+
 
     def getData(self, showData=False, n=5):
         """
@@ -77,7 +83,8 @@ class Data(object):
         This function can suggest us to stardardize our data when the mean are differents
         :return: the described data: mean std etc.
         """
-        description = self.X_train.describe()
+        x = self.X_train[['margin20', 'shape20', 'texture20']]
+        description = x.describe()
         return description
 
     def classDistribution(self):
@@ -151,21 +158,7 @@ class Data(object):
         X_transform = min_max_scaler.fit_transform(X)
         return X_transform
 
-    def scatterPlot(self, X=None, y=None, colorMap='Paired'):
-        """
-        function for scatter plot.
-        :param X: data to plot, the scaled data from scale() function
-        :param y: the target
-        :param colorMap: color
-        :return: scatter plot to show the class
-        """
-        X = self.projLDA(X, y)
-        plt.figure()
-        plt.subplot(1, 1, 1)
-        plt.scatter(X[:, 0], X[:, 1], c=y, cmap=colorMap, s=100, alpha=0.9)
-        plt.title('lda representation')
-        plt.xlabel('coeff1')
-        plt.ylabel('coeff2')
-        plt.show()
+
+
 
 
