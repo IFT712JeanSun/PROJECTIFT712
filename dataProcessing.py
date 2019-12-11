@@ -11,6 +11,7 @@ from sklearn import preprocessing
 from sklearn.model_selection import StratifiedShuffleSplit
 import warnings
 warnings.filterwarnings("ignore")
+from pandas import set_option
 
 class Data(object):
     '''
@@ -30,23 +31,17 @@ class Data(object):
         self.data_to_print = data_train
         # the data_unknown are the data without target, the test data in
         data_unknown = read_csv(fileNameTest)
+        self.data_X_train = data_train.iloc[:, 2:]
         X = data_train.iloc[:, 2:]
         y = data_train['species'].astype('category')
         y = y.cat.codes.as_matrix()
+        self.data_Y_train = y
         sss = StratifiedShuffleSplit(10, 0.2, random_state=15)
         for train_index, test_index in sss.split(X, y):
             self.X_train, self.X_test = X.iloc[train_index], X.iloc[test_index]
             self.y_train, self.y_test = y[train_index], y[test_index]
         le = LabelEncoder().fit(data_train.iloc[:, 1])
         self.className = list(le.classes_)
-        #min_max_scaler = preprocessing.MinMaxScaler()
-        #X = min_max_scaler.fit_transform(X)
-        #X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=1)
-        #X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        #self.X_train = X_train
-        #self.y_train = y_train
-        #self.X_test = X_test
-        #self.y_test = y_test sample_submission
         submission_data = pd.read_csv('data/sample_submission.csv')
         categories = submission_data.columns.values[1:]
         self.X_unknown = data_unknown.iloc[:, 1:]
@@ -55,10 +50,18 @@ class Data(object):
 
 
     def printSomeData(self):
+        '''
+        function that print some data
+        :return:
+        '''
         printing = self.data_to_print[['id', 'species', 'margin20', 'shape20', 'texture20']]
         print(printing)
 
     def getShape(self):
+        '''
+        Function that print the shape of the data
+        :return:
+        '''
         print(self.data_to_print.shape)
 
 
@@ -92,7 +95,7 @@ class Data(object):
         function that gives the number of instance in each class
         :return: the species with their size
         """
-        return self.X_train.groupby('species').size()
+        return self.data_to_print.groupby('species').size()
 
     def univariantePlot(self):
         """
@@ -115,6 +118,12 @@ class Data(object):
         cax = ax.matshow(self.X_train.corr(), vmin=-1, vmax=1, interpolation='none')
         fig.colorbar(cax)
         pyplot.show()
+
+    def correlation(self):
+        set_option('precision', 3)
+        x_corr = self.X_train[['margin10', 'shape10', 'texture10', 'margin20', 'shape20', 'texture20']]
+        corr = x_corr.corr(method='pearson')
+        print(corr)
 
     def multivariantePlot(self):
         """
