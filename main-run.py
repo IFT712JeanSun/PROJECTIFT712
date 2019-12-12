@@ -1,6 +1,6 @@
 from plotting import *
 from submission import *
-from training import train_testPrecision_Predict
+from train import train_testPrecision_Predict
 
 # To run the code python main-run.py
 
@@ -57,7 +57,7 @@ def main():
     toplot.barPlot()
     toplot.scatterPlot()
     toplot.barPlotCrossValidation()
-    
+
     print('\n\n Making file for submission ...\n')
     s = Submission()
     sub = s.submission()
