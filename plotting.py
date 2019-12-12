@@ -1,44 +1,103 @@
 from sklearn.metrics import confusion_matrix, classification_report
 
-from classifiers import *
+from classifier import *
+from crossValidation import *
 from sklearn import metrics
 from sklearn.utils.multiclass import unique_labels
 
 class Plotting(Algorithm):
+    '''
+    class for making figures
+    '''
     def __init__(self):
         super().__init__()
 
-    def evaluate_model(self, model):
+    def evaluateModel(self, model, transform=False):
         '''
         Evaluate the model
         :param model: the model or classifier
         :return: the accuracy score
         '''
-        model.fit(self.X_train, self.y_train)
-        y_predict = model.predict(self.X_test)
-        accuracy_score = metrics.accuracy_score(self.y_test, y_predict)
+        if transform:
+            X_train = self.scale(self.X_train)
+            X_test = self.scale(self.X_test)
+            model.fit(X_train, self.y_train)
+            y_predict = model.predict(X_test)
+            accuracy_score = metrics.accuracy_score(self.y_test, y_predict)
+        else:
+            model.fit(self.X_train, self.y_train)
+            y_predict = model.predict(self.X_test)
+            accuracy_score = metrics.accuracy_score(self.y_test, y_predict)
         return accuracy_score
 
+    def evaluateModelCrossValidation(self, model, transform=False):
+        '''
+        Evaluate the model
+        :param model: the model or classifier
+        :return: the accuracy score
+        '''
+        accuracyScore = self.modelCrossValidation(model=model, transform=transform)
+        return accuracyScore
+
     def barPlot(self):
+        '''
+        Plot barplot of accuracy of each classifier.
+        :return: None accuracy_score = self.evaluateModel(clf, transform=False)
+        '''
+        print("ploting the barplot ...\n")
+
+        classifiers = self.classifier()
+        accuracy_scoresF = list()
+        accuracy_scoresT = list()
+        for clf in classifiers:
+            accuracy_scoreF = self.evaluateModel(clf, transform=False)
+            accuracy_scoreT = self.evaluateModel(clf, transform=True)
+            accuracy_scoresF.append(accuracy_scoreF)
+            accuracy_scoresT.append(accuracy_scoreT)
+        log_cols = ['Classificateurs', 'Précision en pourcentage']
+        clf = ['SVM', 'DTC', 'KNN', 'LDA', 'NN', 'LR']
+        logF = pd.DataFrame(columns=log_cols)
+        logT = pd.DataFrame(columns=log_cols)
+        for i in range(0, len(classifiers)):
+            logF = logF.append(
+                pd.DataFrame([[clf[i], 100*accuracy_scoresF[i]]], columns=log_cols), ignore_index=True)
+        for i in range(0, len(classifiers)):
+            logT = logT.append(
+                pd.DataFrame([[clf[i], 100*accuracy_scoresT[i]]], columns=log_cols), ignore_index=True)
+        sns.barplot(x='Précision en pourcentage', y='Classificateurs', data=logT, color='black', alpha=0.4)
+        sns.barplot(x='Précision en pourcentage', y='Classificateurs', data=logF, color='blue', alpha=0.4)
+        plt.xlabel('Précision en pourcentage')
+        plt.savefig("barplot.pdf")
+        plt.show()
+
+    def barPlotCrossValidation(self, transform=False):
         '''
         Plot barplot of accuracy of each classifier.
         :return: None
         '''
         print("ploting the barplot ...\n")
         classifiers = self.classifier()
-        accuracy_scores = list()
+        accuracy_scoresF = list()
+        accuracy_scoresT = list()
         for clf in classifiers:
-            accuracy_score = self.evaluate_model(clf)
-            accuracy_scores.append(accuracy_score)
-        log_cols = ['Classifier', 'Accuracy score']
-        log = pd.DataFrame(columns=log_cols)
+            accuracy_scoreF = self.evaluateModelCrossValidation(clf, transform=False)
+            accuracy_scoreT = self.evaluateModelCrossValidation(clf, transform=True)
+            accuracy_scoresF.append(accuracy_scoreF)
+            accuracy_scoresT.append(accuracy_scoreT)
+        log_cols = ['Classificateurs', 'Précision en pourcentage']
+        clf = ['SVM', 'DTC', 'KNN', 'LDA', 'NN', 'LR']
+        logF = pd.DataFrame(columns=log_cols)
+        logT = pd.DataFrame(columns=log_cols)
         for i in range(0, len(classifiers)):
-            log = log.append(
-                pd.DataFrame([[classifiers[i].__class__.__name__, accuracy_scores[i]]], columns=log_cols), ignore_index=True)
-        sns.barplot(x='Accuracy score', y='Classifier', data=log, color='black')
-        plt.xlabel('Accuracy score')
-        plt.title('Classifier accuracy score')
-        plt.savefig("barplot.pdf")
+            logF = logF.append(
+                pd.DataFrame([[clf[i], 100*accuracy_scoresF[i]]], columns=log_cols), ignore_index=True)
+        for i in range(0, len(classifiers)):
+            logT = logT.append(
+                pd.DataFrame([[clf[i], 100*accuracy_scoresT[i]]], columns=log_cols), ignore_index=True)
+        sns.barplot(x='Précision en pourcentage', y='Classificateurs', data=logT, color='black', alpha=0.4)
+        sns.barplot(x='Précision en pourcentage', y='Classificateurs', data=logF, color='blue', alpha=0.4)
+        plt.xlabel('Précision en pourcentage')
+        plt.savefig("barplotCV.pdf")
         plt.show()
 
     def information(self):
@@ -87,7 +146,6 @@ class Plotting(Algorithm):
         # We want to show all ticks...
         ax.set(xticks=np.arange(cm.shape[1]),
             yticks=np.arange(cm.shape[0]),
-            # ... and label them with the respective list entries
             xticklabels=classes, yticklabels=classes,
             title=title,
             ylabel='True label',
