@@ -1,6 +1,6 @@
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.naive_bayes import GaussianNB
-from dataProcessing import *
+from dataProcess import *
 from sklearn.neural_network import MLPClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
@@ -55,13 +55,3 @@ class AlgorithmEvaluation(Data):
         ax.set_xticklabels(names)
         pyplot.show()
 
-data = Data()
-X_train, y_train, X_test, y_test = data.getData(showData=False)
-
-print(data.projLDA(X_train, y_train))
-data.scatterPlot(X=X_train, y=y_train)
-
-
-
-#algo_evaluation = AlgorithmEvaluation('data/train.csv', 'data/test.csv')
-#algo_evaluation.algoEvaluation()
