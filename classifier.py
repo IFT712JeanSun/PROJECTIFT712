@@ -1,5 +1,4 @@
 from sklearn.neural_network import MLPClassifier
-from sklearn.linear_model import LogisticRegressionCV
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from crossValidation import *
@@ -19,19 +18,22 @@ class Algorithm(CrossValidation):
         self.crossValidationForSVM()
         self.svm = SVC(C=self.C, kernel=self.kernel, degree=3, probability=True)
 
-        self.dtc = DecisionTreeClassifier(criterion=self.criterion, min_samples_split=2, min_samples_leaf=1,)
+        self.crossValidationForSVM()
+        self.dtc = DecisionTreeClassifier(criterion=self.criterion, max_depth=self.max_depth,
+                                          max_leaf_nodes=self.max_leaf_nodes, min_samples_leaf=self.min_samples_leaf)
 
         self.crossValidationKNN()
         self.knn = KNeighborsClassifier(n_neighbors=self.n_neighbors)
 
-        #self.crossValidationLDA()
+        self.crossValidationLDA()
         self.lda = LinearDiscriminantAnalysis(solver='svd')
 
-        self.nn = MLPClassifier(activation=self.activation, solver='adam')
+        self.crossValidationNN()
+        self.nn = MLPClassifier(activation=self.activation, solver=self.solver,
+                                learning_rate=self.learning_rate, learning_rate_init=self.learning_rate_init)
 
-        #this is allready the cross validation version of the logistic regression
-        self.lrcv = LogisticRegressionCV(penalty=self.penalty)
-        self.lr = LogisticRegression(penalty=self.penalty)
+        self.crossValidationLR()
+        self.lr = LogisticRegression(penalty=self.penalty, C=self.C, tol=self.tol)
 
         self.gbc = GradientBoostingClassifier()
         self.rfc = RandomForestClassifier()
@@ -42,5 +44,7 @@ class Algorithm(CrossValidation):
         function to create a liste of the classifiers
         :return: the classifiers
         '''
-        clf = [self.svm, self.dtc, self.knn, self.lda, self.nn, self.lr, self.lrcv, self.gbc, self.rfc, self.abc]
+        #clf = [self.svm, self.dtc, self.knn, self.lda, self.nn, self.lr, self.gbc, self.rfc, self.abc]
+        clf = [self.svm, self.dtc, self.knn, self.lda, self.nn, self.lr]
         return clf
+
