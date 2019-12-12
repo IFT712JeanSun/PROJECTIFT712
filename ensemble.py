@@ -40,7 +40,7 @@ class ensemblestudy(AlgorithmEvaluation):
     
     def results(self):
         """
-        
+        To give the final result of ensemble algorithm
         """
         reli = []
         X_train = np.vstack((self.X_train, self.X_test))
