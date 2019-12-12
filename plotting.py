@@ -1,7 +1,7 @@
 from sklearn.metrics import confusion_matrix, classification_report
 
 from classifier import *
-from crossValidation import *
+from crossValida import *
 from sklearn import metrics
 from sklearn.utils.multiclass import unique_labels
 
