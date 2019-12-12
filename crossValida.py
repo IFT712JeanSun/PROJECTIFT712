@@ -42,7 +42,7 @@ class CrossValidation(Data):
         num_folds = 10
         seed = 7
         scoring = 'accuracy'
-        c_values = [0.1, 0.3, 0.5, 0.7, 0.9, 1.0, 1.3, 1.5, 1.7, 2]
+        c_values = [0.1, 0.5, 0.7, 1.0, 1.3, 1.7, 2]
         kernel_values = ['linear', 'poly', 'rbf', 'sigmoid']
         param_grid = dict(C=c_values, kernel=kernel_values)
         model = SVC()
@@ -103,7 +103,7 @@ class CrossValidation(Data):
         activation = ['identity', 'logistic', 'tanh', 'relu']
         solver = ['lbfgs', 'sgd', 'adam']
         learning_rate = ['constant', 'invscaling', 'adaptive']
-        learning_rate_init = [0.001, 0.002, 0.004, 0.008, 0.01]
+        learning_rate_init = [0.001, 0.002, 0.01]
         param_grid = dict(activation=activation, solver=solver, learning_rate=learning_rate,
                           learning_rate_init=learning_rate_init)
         kfold = KFold(n_splits=num_folds, random_state=seed)
@@ -152,8 +152,8 @@ class CrossValidation(Data):
         scoring = 'accuracy'
         num_folds = 10
         seed = 7
-        c = [1, 11, 15, 17, 19, 20, 30, 50, 70, 100, 1000, 2000]
-        tol = [0.001, 0.0005, 0.005]
+        c = [1, 10, 20, 50, 100, 1000, 2000]
+        tol = [0.005, 0.003, 0.001]
         param_grid = dict(C=c, tol=tol)
         kfold = KFold(n_splits=num_folds, random_state=seed)
         model = LogisticRegression(solver='newton-cg', multi_class='multinomial')
